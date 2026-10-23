@@ -7,6 +7,16 @@ const login = async (page: Page) => {
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Your next chapter starts here.' })).toBeVisible();
 };
+test.beforeEach(async ({ request }) => {
+  const auth = await request.post('/api/auth/login', {
+    data: { email: 'admin@example.com', password: 'TestingPassword42!' },
+  });
+  const { token } = await auth.json();
+  const headers = { Authorization: `Bearer ${token}` };
+  const listing = await request.get('/api/vehicles', { headers });
+  for (const vehicle of (await listing.json()).vehicles)
+    await request.delete('/api/vehicles/' + vehicle.id, { headers });
+});
 test('admin adds, edits, restocks, purchases, filters and deletes inventory', async ({ page }) => {
   await login(page);
   await page.getByRole('button', { name: 'Add vehicle', exact: true }).click();
@@ -39,7 +49,25 @@ test('admin adds, edits, restocks, purchases, filters and deletes inventory', as
   await page.getByRole('button', { name: 'Confirm delete' }).click();
   await expect(edited).toHaveCount(0);
 });
-test('customer registers, sees no admin actions and can sign out', async ({ page }) => {
+test('customer registers, purchases, sees no admin actions and can sign out', async ({
+  page,
+  request,
+}) => {
+  const auth = await request.post('/api/auth/login', {
+    data: { email: 'admin@example.com', password: 'TestingPassword42!' },
+  });
+  const { token } = await auth.json();
+  await request.post('/api/vehicles', {
+    headers: { Authorization: `Bearer ${token}` },
+    data: {
+      make: 'Toyota',
+      model: 'Customer test car',
+      category: 'Sedan',
+      price: 25000,
+      quantity: 1,
+    },
+  });
+
   await page.goto('/');
   await page.getByRole('button', { name: 'Create account', exact: true }).click();
   await page.getByLabel('Full name').fill('Taylor Reed');
@@ -48,6 +76,10 @@ test('customer registers, sees no admin actions and can sign out', async ({ page
   await page.getByRole('button', { name: 'Create account', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Your next chapter starts here.' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Add vehicle', exact: true })).toHaveCount(0);
+  const car = page.getByRole('article').filter({ hasText: 'Customer test car' });
+  await car.getByRole('button', { name: 'Purchase vehicle' }).click();
+  await page.getByRole('button', { name: 'Confirm purchase' }).click();
+  await expect(car.getByRole('button', { name: 'Out of stock' })).toBeDisabled();
   await page.getByRole('button', { name: 'Sign out' }).click();
   await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeVisible();
 });
@@ -91,6 +123,16 @@ test('captures seeded desktop, mobile and sign-in screenshots', async ({ page, r
   await login(page);
   await expect(page.getByRole('article')).toHaveCount(8);
   await page.screenshot({ path: 'docs/screenshots/desktop.png', fullPage: true });
+  await page.getByRole('button', { name: 'SUV', exact: true }).click();
+  await expect(page.getByRole('article')).toHaveCount(3);
+  await page.getByRole('button', { name: 'Filters', exact: true }).click();
+  await page.getByLabel('Maximum price').fill('60000');
+  await page.getByLabel('In stock only').check();
+  await expect(page.getByRole('article')).toHaveCount(1);
+  await expect(page.getByRole('article')).toContainText('XC60 Recharge');
+  await page.getByRole('button', { name: 'Clear filters', exact: true }).click();
+  await page.getByRole('button', { name: 'Filters', exact: true }).click();
+  await expect(page.getByRole('article')).toHaveCount(8);
   await page.getByRole('button', { name: 'Add vehicle', exact: true }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.screenshot({ path: 'docs/screenshots/add-vehicle.png' });

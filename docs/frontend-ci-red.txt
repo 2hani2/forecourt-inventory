@@ -1,0 +1,45 @@
+
+> forecourt-inventory@1.0.0 test:e2e
+> playwright test
+
+
+Running 5 tests using 1 worker
+
+  ✘  1 [chromium] › tests/e2e/journeys.spec.ts:10:1 › admin adds, edits, restocks, purchases, filters and deletes inventory (30.2s)
+  ✓  2 [chromium] › tests/e2e/journeys.spec.ts:42:1 › customer registers, sees no admin actions and can sign out (627ms)
+  ✓  3 [chromium] › tests/e2e/journeys.spec.ts:54:1 › login errors are announced without navigating away (388ms)
+  ✓  4 [chromium] › tests/e2e/journeys.spec.ts:61:1 › mobile dashboard fits the viewport and dialogs support keyboard dismissal (488ms)
+  ✓  5 [chromium] › tests/e2e/journeys.spec.ts:75:1 › captures seeded desktop, mobile and sign-in screenshots (1.9s)
+
+
+  1) [chromium] › tests/e2e/journeys.spec.ts:10:1 › admin adds, edits, restocks, purchases, filters and deletes inventory 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Category', { exact: true })
+
+
+      13 |   await page.getByLabel('Make', { exact: true }).fill('Porsche');
+      14 |   await page.getByLabel('Model', { exact: true }).fill('911 Test');
+    > 15 |   await page.getByLabel('Category', { exact: true }).selectOption('Coupe');
+         |                                                      ^
+      16 |   await page.getByLabel('Price (USD)').fill('114400');
+      17 |   await page.getByLabel('Quantity', { exact: true }).fill('1');
+      18 |   await page.getByRole('button', { name: 'Save vehicle' }).click();
+        at /home/runner/work/forecourt-inventory/forecourt-inventory/tests/e2e/journeys.spec.ts:15:54
+
+    Error Context: test-results/journeys-admin-adds-edits--1b9a7-lters-and-deletes-inventory-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/journeys-admin-adds-edits--1b9a7-lters-and-deletes-inventory-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/journeys-admin-adds-edits--1b9a7-lters-and-deletes-inventory-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › tests/e2e/journeys.spec.ts:10:1 › admin adds, edits, restocks, purchases, filters and deletes inventory 
+  4 passed (37.0s)
