@@ -1,3 +1,4 @@
+import { demoVehicles } from '../../scripts/demo-vehicles';
 import { test, expect, type Page } from '@playwright/test';
 const login = async (page: Page) => {
   await page.goto('/');
@@ -57,12 +58,46 @@ test('login errors are announced without navigating away', async ({ page }) => {
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('Invalid email or password.');
 });
-test('mobile dashboard fits the viewport and dialogs support keyboard dismissal', async ({ page }) => {
+test('mobile dashboard fits the viewport and dialogs support keyboard dismissal', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await login(page);
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
   await page.getByRole('button', { name: 'Add vehicle', exact: true }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog')).toHaveCount(0);
+});
+
+test('captures seeded desktop, mobile and sign-in screenshots', async ({ page, request }) => {
+  const auth = await request.post('/api/auth/login', {
+    data: { email: 'admin@example.com', password: 'TestingPassword42!' },
+  });
+  const { token } = await auth.json();
+  for (const [make, model, category, price, quantity, year, fuel, color] of demoVehicles) {
+    const res = await request.post('/api/vehicles', {
+      headers: { Authorization: `Bearer ${token}` },
+      data: { make, model, category, price, quantity, year, fuel, color },
+    });
+    expect(res.status()).toBe(201);
+  }
+  await page.setViewportSize({ width: 1440, height: 1050 });
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeVisible();
+  await page.screenshot({ path: 'docs/screenshots/sign-in.png', fullPage: true });
+  await login(page);
+  await expect(page.getByRole('article')).toHaveCount(8);
+  await page.screenshot({ path: 'docs/screenshots/desktop.png', fullPage: true });
+  await page.getByRole('button', { name: 'Add vehicle', exact: true }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.screenshot({ path: 'docs/screenshots/add-vehicle.png' });
+  await page.keyboard.press('Escape');
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+  await page.screenshot({ path: 'docs/screenshots/mobile.png', fullPage: true });
 });
