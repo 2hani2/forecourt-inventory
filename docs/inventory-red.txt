@@ -1,0 +1,348 @@
+
+> forecourt-inventory@1.0.0 test
+> vitest run
+
+
+ RUN  v4.1.12 /Users/venisa/Documents/Codex/2026-10-23/tdd-kata-car-dealership-inventory-system/outputs/forecourt
+
+ ❯ tests/vehicles.test.ts (40 tests | 39 failed) 251ms
+     × requires a token on every vehicle route 43ms
+     × creates uniquely identified vehicles and lists zero-stock entries too 16ms
+     × persists data after the connection is closed and reopened 8ms
+     × uses defaults when only required vehicle fields are supplied 5ms
+     × validates vehicle fields {"make":""} 5ms
+     × validates vehicle fields {"model":" "} 5ms
+     × validates vehicle fields {"category":"Spaceship"} 5ms
+     × validates vehicle fields {"price":-1} 5ms
+     × validates vehicle fields {"price":1.001} 5ms
+     × validates vehicle fields {"price":"300"} 5ms
+     × validates vehicle fields {"quantity":-1} 6ms
+     × validates vehicle fields {"quantity":1.5} 6ms
+     × validates vehicle fields {"quantity":1000001} 7ms
+     × validates vehicle fields {"color":"javascript:x"} 5ms
+     × validates vehicle fields {"year":1} 4ms
+     × validates vehicle fields {"id":"injected"} 5ms
+     × combines case-insensitive make, model, category and inclusive price filters 9ms
+     × treats SQL and LIKE wildcards as literal search strings 6ms
+     × rejects invalid filters: minPrice=-1 4ms
+     × rejects invalid filters: maxPrice=no 4ms
+     × rejects invalid filters: minPrice=100&maxPrice=1 4ms
+     × rejects invalid filters: make=a&make=b 5ms
+     × rejects invalid filters: inStock=invalid 4ms
+     × filters in-stock vehicles 6ms
+     × updates details without changing identity or unrelated fields 7ms
+     × requires admin to change stock through an update 5ms
+     × rejects an empty update 4ms
+     × allows only admins to delete 4ms
+     × purchases one unit by default and an explicit positive quantity 4ms
+     × does not partially fulfill an oversized purchase 4ms
+     × prevents overselling under concurrent requests using separate database connections 5ms
+     × restocks only as admin, preserving existing quantity 4ms
+     × prevents stock overflow 4ms
+     × rejects an invalid purchase and restock amount: 0 4ms
+     × rejects an invalid purchase and restock amount: -1 4ms
+     × rejects an invalid purchase and restock amount: 1.5 4ms
+     × rejects an invalid purchase and restock amount: 2 4ms
+     × rejects an invalid purchase and restock amount: 1000001 4ms
+     × requires an explicit restock quantity 4ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 39 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/vehicles.test.ts > vehicle catalog > requires a token on every vehicle route
+AssertionError: expected 404 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 404
+
+ ❯ tests/vehicles.test.ts:28:81
+     26|   it('requires a token on every vehicle route', async () => {
+     27|     for (const [method, path] of [['get',''], ['get','/search'], ['pos…
+     28|       expect((await request(context.app)[method]('/api/vehicles'+path)…
+       |                                                                                 ^
+     29|     }
+     30|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/39]⎯
+
+ FAIL  tests/vehicles.test.ts > vehicle catalog > creates uniquely identified vehicles and lists zero-stock entries too
+AssertionError: expected 404 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 404
+
+ ❯ tests/vehicles.test.ts:33:26
+     31|   it('creates uniquely identified vehicles and lists zero-stock entrie…
+     32|     const first = await add(); const second = await add({ ...car, quan…
+     33|     expect(first.status).toBe(201);
+       |                          ^
+     34|     expect(first.body.vehicle).toMatchObject(car);
+     35|     expect(first.body.vehicle.id).not.toBe(second.body.vehicle.id);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/39]⎯
+
+ FAIL  tests/vehicles.test.ts > vehicle catalog > persists data after the connection is closed and reopened
+TypeError: Cannot read properties of undefined (reading '0')
+ ❯ tests/vehicles.test.ts:42:31
+     40|     await add(); context.db.close();
+     41|     context = createApp({ databasePath: join(dir, 'test.sqlite'), jwtS…
+     42|     expect((await get()).body.vehicles[0]).toMatchObject(car);
+       |                               ^
+     43|   });
+     44|   it('uses defaults when only required vehicle fields are supplied', a…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/39]⎯
+
+ FAIL  tests/vehicles.test.ts > vehicle catalog > uses defaults when only required vehicle fields are supplied
+AssertionError: expected 404 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 404
+
+ ❯ tests/vehicles.test.ts:47:24
+     45|     const { year, fuel, color, ...required } = car;
+     46|     const res = await request(context.app).post('/api/vehicles').auth(…
+     47|     expect(res.status).toBe(201);
+       |                        ^
+     48|     expect(res.body.vehicle).toMatchObject(required);
+     49|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/39]⎯
+
+ FAIL  tests/vehicles.test.ts > vehicle catalog > validates vehicle fields {"make":""}
+ FAIL  tests/vehicles.test.ts > vehicle catalog > validates vehicle fields {"model":" "}
+ FAIL  tests/vehicles.test.ts > vehicle catalog > validates vehicle fields {"category":"Spaceship"}
+ FAIL  tests/vehicles.test.ts > vehicle catalog > validates vehicle fields {"price":-1}
+ FAIL  tests/vehicles.test.ts > vehicle catalog > validates vehicle fields {"price":1.001}
+ FAIL  tests/vehicles.test.ts > vehicle catalog > validates vehicle fields {"price":"300"}
+ FAIL  tests/vehicles.test.ts > vehicle catalog > validates vehicle fields {"quantity":-1}
+ FAIL  tests/vehicles.test.ts > vehicle catalog > validates vehicle fields {"quantity":1.5}
+ FAIL  tests/vehicles.test.ts > vehicle catalog > validates vehicle fields {"quantity":1000001}
+ FAIL  tests/vehicles.test.ts > vehicle catalog > validates vehicle fields {"color":"javascript:x"}
+ FAIL  tests/vehicles.test.ts > vehicle catalog > validates vehicle fields {"year":1}
+ FAIL  tests/vehicles.test.ts > vehicle catalog > validates vehicle fields {"id":"injected"}
+AssertionError: expected 404 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 404
+
+ ❯ tests/vehicles.test.ts:51:71
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/39]⎯
+
+ FAIL  tests/vehicles.test.ts > vehicle catalog > combines case-insensitive make, model, category and inclusive price filters
+AssertionError: Target cannot be null or undefined.
+ ❯ tests/vehicles.test.ts:56:31
+     54|     await add(); await add({ ...car, make: 'BMW', model: 'i4', categor…
+     55|     const res = await get('/api/vehicles/search?make=pOr&model=carrera…
+     56|     expect(res.body.vehicles).toHaveLength(1);
+       |                               ^
+     57|     expect(res.body.vehicles[0].make).toBe('Porsche');
+     58|     expect((await get('/api/vehicles/search?q=BMW')).body.vehicles).to…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/39]⎯
+
+ FAIL  tests/vehicles.test.ts > vehicle catalog > treats SQL and LIKE wildcards as literal search strings
+AssertionError: expected undefined to deeply equal []
+
+- Expected:
+[]
+
++ Received:
+undefined
+
+ ❯ tests/vehicles.test.ts:63:131
+     61|   it('treats SQL and LIKE wildcards as literal search strings', async …
+     62|     await add();
+     63|     for (const q of ["' OR 1=1 --", '%', '_']) expect((await get('/api…
+       |                                                                                                                                   ^
+     64|   });
+     65|   it.each(['minPrice=-1', 'maxPrice=no', 'minPrice=100&maxPrice=1', 'm…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/39]⎯
+
+ FAIL  tests/vehicles.test.ts > vehicle catalog > rejects invalid filters: minPrice=-1
+ FAIL  tests/vehicles.test.ts > vehicle catalog > rejects invalid filters: maxPrice=no
+ FAIL  tests/vehicles.test.ts > vehicle catalog > rejects invalid filters: minPrice=100&maxPrice=1
+ FAIL  tests/vehicles.test.ts > vehicle catalog > rejects invalid filters: make=a&make=b
+ FAIL  tests/vehicles.test.ts > vehicle catalog > rejects invalid filters: inStock=invalid
+AssertionError: expected 404 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 404
+
+ ❯ tests/vehicles.test.ts:66:63
+     64|   });
+     65|   it.each(['minPrice=-1', 'maxPrice=no', 'minPrice=100&maxPrice=1', 'm…
+     66|     expect((await get('/api/vehicles/search?'+query)).status).toBe(400…
+       |                                                               ^
+     67|   });
+     68|   it('filters in-stock vehicles', async () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/39]⎯
+
+ FAIL  tests/vehicles.test.ts > vehicle catalog > filters in-stock vehicles
+AssertionError: Target cannot be null or undefined.
+ ❯ tests/vehicles.test.ts:70:76
+     68|   it('filters in-stock vehicles', async () => {
+     69|     await add(); await add({ ...car, quantity: 0 });
+     70|     expect((await get('/api/vehicles/search?inStock=true')).body.vehic…
+       |                                                                            ^
+     71|   });
+     72|   it('updates details without changing identity or unrelated fields', …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/39]⎯
+
+ FAIL  tests/vehicles.test.ts > vehicle catalog > updates details without changing identity or unrelated fields
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/vehicles.test.ts:74:78
+     72|   it('updates details without changing identity or unrelated fields', …
+     73|     const { body } = await add();
+     74|     const res = await request(context.app).put('/api/vehicles/'+body.v…
+       |                                                                              ^
+     75|     expect(res.status).toBe(200);
+     76|     expect(res.body.vehicle).toMatchObject({ ...car, id: body.vehicle.…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/39]⎯
+
+ FAIL  tests/vehicles.test.ts > vehicle catalog > requires admin to change stock through an update
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/vehicles.test.ts:80:74
+     78|   it('requires admin to change stock through an update', async () => {
+     79|     const { body } = await add();
+     80|     expect((await request(context.app).put('/api/vehicles/'+body.vehic…
+       |                                                                          ^
+     81|     expect((await request(context.app).put('/api/vehicles/'+body.vehic…
+     82|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/39]⎯
+
+ FAIL  tests/vehicles.test.ts > vehicle catalog > rejects an empty update
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/vehicles.test.ts:85:74
+     83|   it('rejects an empty update', async () => {
+     84|     const { body } = await add();
+     85|     expect((await request(context.app).put('/api/vehicles/'+body.vehic…
+       |                                                                          ^
+     86|   });
+     87|   it('allows only admins to delete', async () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/39]⎯
+
+ FAIL  tests/vehicles.test.ts > vehicle catalog > allows only admins to delete
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/vehicles.test.ts:88:77
+     86|   });
+     87|   it('allows only admins to delete', async () => {
+     88|     const { body } = await add(); const url = '/api/vehicles/'+body.ve…
+       |                                                                             ^
+     89|     expect((await request(context.app).delete(url).auth(customer, { ty…
+     90|     expect((await request(context.app).delete(url).auth(admin, { type:…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/39]⎯
+
+ FAIL  tests/vehicles.test.ts > atomic inventory operations > purchases one unit by default and an explicit positive quantity
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/vehicles.test.ts:98:77
+     96| describe('atomic inventory operations', () => {
+     97|   it('purchases one unit by default and an explicit positive quantity'…
+     98|     const { body } = await add(); const url = `/api/vehicles/${body.ve…
+       |                                                                             ^
+     99|     expect((await request(context.app).post(url).auth(customer, { type…
+    100|     expect((await request(context.app).post(url).auth(customer, { type…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/39]⎯
+
+ FAIL  tests/vehicles.test.ts > atomic inventory operations > does not partially fulfill an oversized purchase
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/vehicles.test.ts:105:75
+    103|   it('does not partially fulfill an oversized purchase', async () => {
+    104|     const { body } = await add();
+    105|     expect((await request(context.app).post(`/api/vehicles/${body.vehi…
+       |                                                                           ^
+    106|     expect((await get()).body.vehicles[0].quantity).toBe(3);
+    107|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/39]⎯
+
+ FAIL  tests/vehicles.test.ts > atomic inventory operations > prevents overselling under concurrent requests using separate database connections
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/vehicles.test.ts:112:125
+    110|     const other = createApp({ databasePath: join(dir, 'test.sqlite'), …
+    111|     try {
+    112|       const results = await Promise.all([context.app, other.app].map(a…
+       |                                                                                                                             ^
+    113|       expect(results.map(r => r.status).sort()).toEqual([200, 409]);
+    114|       expect((await get()).body.vehicles[0].quantity).toBe(0);
+ ❯ tests/vehicles.test.ts:112:66
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/39]⎯
+
+ FAIL  tests/vehicles.test.ts > atomic inventory operations > restocks only as admin, preserving existing quantity
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/vehicles.test.ts:118:77
+    116|   });
+    117|   it('restocks only as admin, preserving existing quantity', async () …
+    118|     const { body } = await add(); const url = `/api/vehicles/${body.ve…
+       |                                                                             ^
+    119|     expect((await request(context.app).post(url).auth(customer, { type…
+    120|     expect((await request(context.app).post(url).auth(admin, { type: '…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/39]⎯
+
+ FAIL  tests/vehicles.test.ts > atomic inventory operations > prevents stock overflow
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/vehicles.test.ts:124:75
+    122|   it('prevents stock overflow', async () => {
+    123|     const { body } = await add({ ...car, quantity: 1000000 });
+    124|     expect((await request(context.app).post(`/api/vehicles/${body.vehi…
+       |                                                                           ^
+    125|   });
+    126|   it.each([0, -1, 1.5, '2', 1000001])('rejects an invalid purchase and…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/39]⎯
+
+ FAIL  tests/vehicles.test.ts > atomic inventory operations > rejects an invalid purchase and restock amount: 0
+ FAIL  tests/vehicles.test.ts > atomic inventory operations > rejects an invalid purchase and restock amount: -1
+ FAIL  tests/vehicles.test.ts > atomic inventory operations > rejects an invalid purchase and restock amount: 1.5
+ FAIL  tests/vehicles.test.ts > atomic inventory operations > rejects an invalid purchase and restock amount: 2
+ FAIL  tests/vehicles.test.ts > atomic inventory operations > rejects an invalid purchase and restock amount: 1000001
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/vehicles.test.ts:128:121
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/39]⎯
+
+ FAIL  tests/vehicles.test.ts > atomic inventory operations > requires an explicit restock quantity
+TypeError: Cannot read properties of undefined (reading 'id')
+ ❯ tests/vehicles.test.ts:132:75
+    130|   it('requires an explicit restock quantity', async () => {
+    131|     const { body } = await add();
+    132|     expect((await request(context.app).post(`/api/vehicles/${body.vehi…
+       |                                                                           ^
+    133|   });
+    134|   it('returns 404 for missing vehicles on mutations', async () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/39]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  39 failed | 18 passed (57)
+   Start at  21:26:02
+   Duration  1.81s (transform 143ms, setup 0ms, import 933ms, tests 1.39s, environment 0ms)
+
