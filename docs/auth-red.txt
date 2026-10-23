@@ -1,0 +1,225 @@
+
+> forecourt-inventory@1.0.0 test
+> vitest run
+
+
+ RUN  v3.2.7 /Users/venisa/Documents/Codex/2026-10-23/tdd-kata-car-dealership-inventory-system/outputs/forecourt
+
+ ❯ tests/auth.test.ts (17 tests | 17 failed) 84ms
+   × registration and token authentication > registers a customer, hashes the password and issues a usable JWT 34ms
+     → expected 404 to be 201 // Object.is equality
+   × registration and token authentication > normalizes email and rejects case-insensitive duplicates 7ms
+     → expected 404 to be 409 // Object.is equality
+   × registration and token authentication > rejects invalid registration or role injection: {"email":"invalid"} 3ms
+     → expected 404 to be 400 // Object.is equality
+   × registration and token authentication > rejects invalid registration or role injection: {"password":"short"} 2ms
+     → expected 404 to be 400 // Object.is equality
+   × registration and token authentication > rejects invalid registration or role injection: {"name":" "} 2ms
+     → expected 404 to be 400 // Object.is equality
+   × registration and token authentication > rejects invalid registration or role injection: {"password":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"} 2ms
+     → expected 404 to be 400 // Object.is equality
+   × registration and token authentication > rejects invalid registration or role injection: {"role":"admin"} 2ms
+     → expected 404 to be 400 // Object.is equality
+   × registration and token authentication > logs in using normalized email and never exposes the hash 6ms
+     → expected 404 to be 200 // Object.is equality
+   × registration and token authentication > uses a generic error for invalid credentials 3ms
+     → expected 404 to be 401 // Object.is equality
+   × registration and token authentication > uses a generic error for invalid credentials 5ms
+     → expected 404 to be 401 // Object.is equality
+   × registration and token authentication > rejects a wrong password for an existing account 3ms
+     → expected 404 to be 401 // Object.is equality
+   × registration and token authentication > rejects missing, invalid, unknown, or expired identity 2ms
+     → expected 404 to be 401 // Object.is equality
+   × registration and token authentication > rejects missing, invalid, unknown, or expired identity 2ms
+     → expected 404 to be 401 // Object.is equality
+   × registration and token authentication > rejects missing, invalid, unknown, or expired identity 2ms
+     → expected 404 to be 401 // Object.is equality
+   × registration and token authentication > rejects missing, invalid, unknown, or expired identity 2ms
+     → expected 404 to be 401 // Object.is equality
+   × registration and token authentication > requires a strong server secret 4ms
+     → expected [Function] to throw an error
+   × registration and token authentication > returns JSON for malformed JSON and unknown API routes 2ms
+     → expected 404 to be 400 // Object.is equality
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 17 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/auth.test.ts > registration and token authentication > registers a customer, hashes the password and issues a usable JWT
+AssertionError: expected 404 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 404
+
+ ❯ tests/auth.test.ts:22:24
+     20|   it('registers a customer, hashes the password and issues a usable JW…
+     21|     const res = await request(context.app).post('/api/auth/register').…
+     22|     expect(res.status).toBe(201);
+       |                        ^
+     23|     expect(res.body.user).toMatchObject({ email: account.email, role: …
+     24|     expect(res.body.user).not.toHaveProperty('password');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/17]⎯
+
+ FAIL  tests/auth.test.ts > registration and token authentication > normalizes email and rejects case-insensitive duplicates
+AssertionError: expected 404 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 404
+
+ ❯ tests/auth.test.ts:34:24
+     32|     await request(context.app).post('/api/auth/register').send(account…
+     33|     const res = await request(context.app).post('/api/auth/register').…
+     34|     expect(res.status).toBe(409);
+       |                        ^
+     35|   });
+     36|   it.each([
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/17]⎯
+
+ FAIL  tests/auth.test.ts > registration and token authentication > rejects invalid registration or role injection: {"email":"invalid"}
+ FAIL  tests/auth.test.ts > registration and token authentication > rejects invalid registration or role injection: {"password":"short"}
+ FAIL  tests/auth.test.ts > registration and token authentication > rejects invalid registration or role injection: {"name":" "}
+ FAIL  tests/auth.test.ts > registration and token authentication > rejects invalid registration or role injection: {"password":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}
+ FAIL  tests/auth.test.ts > registration and token authentication > rejects invalid registration or role injection: {"role":"admin"}
+AssertionError: expected 404 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 404
+
+ ❯ tests/auth.test.ts:39:110
+     37|     { email: 'invalid' }, { password: 'short' }, { name: ' ' }, { pass…
+     38|   ])('rejects invalid registration or role injection: %j', async (over…
+     39|     expect((await request(context.app).post('/api/auth/register').send…
+       |                                                                                                              ^
+     40|   });
+     41|   it('logs in using normalized email and never exposes the hash', asyn…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/17]⎯
+
+ FAIL  tests/auth.test.ts > registration and token authentication > logs in using normalized email and never exposes the hash
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ ❯ tests/auth.test.ts:44:24
+     42|     await request(context.app).post('/api/auth/register').send(account…
+     43|     const res = await request(context.app).post('/api/auth/login').sen…
+     44|     expect(res.status).toBe(200);
+       |                        ^
+     45|     expect(res.body.token).toBeTypeOf('string');
+     46|     expect(res.body.user).not.toHaveProperty('password_hash');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/17]⎯
+
+ FAIL  tests/auth.test.ts > registration and token authentication > uses a generic error for invalid credentials
+ FAIL  tests/auth.test.ts > registration and token authentication > uses a generic error for invalid credentials
+AssertionError: expected 404 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 404
+
+ ❯ tests/auth.test.ts:50:24
+     48|   it.each(['wrong-password', 'SecurePassword42!'])('uses a generic err…
+     49|     const res = await request(context.app).post('/api/auth/login').sen…
+     50|     expect(res.status).toBe(401);
+       |                        ^
+     51|     expect(res.body.error).toBe('Invalid email or password.');
+     52|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/17]⎯
+
+ FAIL  tests/auth.test.ts > registration and token authentication > rejects a wrong password for an existing account
+AssertionError: expected 404 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 404
+
+ ❯ tests/auth.test.ts:55:130
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/17]⎯
+
+ FAIL  tests/auth.test.ts > registration and token authentication > rejects missing, invalid, unknown, or expired identity
+ FAIL  tests/auth.test.ts > registration and token authentication > rejects missing, invalid, unknown, or expired identity
+ FAIL  tests/auth.test.ts > registration and token authentication > rejects missing, invalid, unknown, or expired identity
+ FAIL  tests/auth.test.ts > registration and token authentication > rejects missing, invalid, unknown, or expired identity
+AssertionError: expected 404 to be 401 // Object.is equality
+
+- Expected
++ Received
+
+- 401
++ 404
+
+ ❯ tests/auth.test.ts:60:32
+     58|     const req = request(context.app).get('/api/auth/me');
+     59|     if (token) req.auth(token, { type: 'bearer' });
+     60|     expect((await req).status).toBe(401);
+       |                                ^
+     61|   });
+     62|   it('requires a strong server secret', () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/17]⎯
+
+ FAIL  tests/auth.test.ts > registration and token authentication > requires a strong server secret
+AssertionError: expected [Function] to throw an error
+
+- Expected: 
+null
+
++ Received: 
+undefined
+
+ ❯ tests/auth.test.ts:63:92
+     61|   });
+     62|   it('requires a strong server secret', () => {
+     63|     expect(() => createApp({ databasePath: join(dir, 'bad.sqlite'), jw…
+       |                                                                                            ^
+     64|   });
+     65|   it('returns JSON for malformed JSON and unknown API routes', async (…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/17]⎯
+
+ FAIL  tests/auth.test.ts > registration and token authentication > returns JSON for malformed JSON and unknown API routes
+AssertionError: expected 404 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 404
+
+ ❯ tests/auth.test.ts:66:123
+     64|   });
+     65|   it('returns JSON for malformed JSON and unknown API routes', async (…
+     66|     expect((await request(context.app).post('/api/auth/login').set('Co…
+       |                                                                                                                           ^
+     67|     expect((await request(context.app).get('/api/nope')).body.error).t…
+     68|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/17]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  17 failed (17)
+   Start at  21:23:05
+   Duration  767ms (transform 47ms, setup 0ms, collect 197ms, tests 84ms, environment 0ms, prepare 97ms)
+
