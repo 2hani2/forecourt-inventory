@@ -4,6 +4,7 @@ import { rateLimit } from 'express-rate-limit';
 import { ZodError } from 'zod';
 import { openDatabase } from './database';
 import { authService } from './auth';
+import { vehicleRouter } from './vehicles';
 
 export interface AppOptions { databasePath: string; jwtSecret: string; authLimit?: number }
 export function createApp(options: AppOptions) {
@@ -16,6 +17,7 @@ export function createApp(options: AppOptions) {
   const auth = authService(db, options.jwtSecret);
   app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
   app.use('/api/auth', rateLimit({ windowMs: 15 * 60 * 1000, limit: options.authLimit ?? 100, standardHeaders: 'draft-8', legacyHeaders: false, message: { error: 'Too many attempts. Please try again later.' } }), auth.router);
+  app.use('/api/vehicles', vehicleRouter(db, auth.authenticate, auth.admin));
   app.use('/api', (_req, res) => res.status(404).json({ error: 'Endpoint not found.' }));
   const errors: ErrorRequestHandler = (error, _req, res, _next) => {
     if (error instanceof ZodError) { res.status(400).json({ error: 'Please check your input.', details: error.issues.map(i => ({ field: i.path.join('.'), message: i.message })) }); return; }
