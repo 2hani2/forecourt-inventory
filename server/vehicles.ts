@@ -51,16 +51,16 @@ export function vehicleRouter(db: Database, authenticate: RequestHandler, admin:
   router.put('/:id', (req, res) => {
     const v = updateSchema.parse(req.body);
     if (v.quantity !== undefined && req.user?.role !== 'admin') { res.status(403).json({ error: 'Only administrators may adjust stock.' }); return; }
-    if (!find(req.params.id)) { res.status(404).json({ error: 'Vehicle not found.' }); return; }
+    if (!find(String(req.params.id))) { res.status(404).json({ error: 'Vehicle not found.' }); return; }
     const entries = Object.entries(v);
     const columns = entries.map(([key]) => `${key === 'price' ? 'price_cents' : key} = ?`);
     const values = entries.map(([key, value]) => key === 'price' ? Math.round(Number(value) * 100) : value);
     // Column names come only from the strict validated schema, never directly from input.
-    db.prepare(`UPDATE vehicles SET ${columns.join(', ')} WHERE id = ?`).run(...values, req.params.id);
-    res.json({ vehicle: publicVehicle(find(req.params.id)!) });
+    db.prepare(`UPDATE vehicles SET ${columns.join(', ')} WHERE id = ?`).run(...values, String(req.params.id));
+    res.json({ vehicle: publicVehicle(find(String(req.params.id))!) });
   });
   router.delete('/:id', admin, (req, res) => {
-    if (!db.prepare('DELETE FROM vehicles WHERE id = ?').run(req.params.id).changes) { res.status(404).json({ error: 'Vehicle not found.' }); return; }
+    if (!db.prepare('DELETE FROM vehicles WHERE id = ?').run(String(req.params.id)).changes) { res.status(404).json({ error: 'Vehicle not found.' }); return; }
     res.status(204).end();
   });
   const stockFailure = (id: string, conflict: string) => {
@@ -70,14 +70,14 @@ export function vehicleRouter(db: Database, authenticate: RequestHandler, admin:
   router.post('/:id/purchase', (req, res) => {
     const { quantity } = z.object({ quantity: amount.default(1) }).strict().parse(req.body ?? {});
     // The condition and decrement are one SQLite statement: stock can never go negative.
-    const row = db.prepare('UPDATE vehicles SET quantity = quantity - ? WHERE id = ? AND quantity >= ? RETURNING *').get(quantity, req.params.id, quantity);
-    if (!row) { const failure = stockFailure(req.params.id, 'Not enough stock for this purchase.'); res.status(failure.status).json({ error: failure.error }); return; }
+    const row = db.prepare('UPDATE vehicles SET quantity = quantity - ? WHERE id = ? AND quantity >= ? RETURNING *').get(quantity, String(req.params.id), quantity);
+    if (!row) { const failure = stockFailure(String(req.params.id), 'Not enough stock for this purchase.'); res.status(failure.status).json({ error: failure.error }); return; }
     res.json({ vehicle: publicVehicle(row) });
   });
   router.post('/:id/restock', admin, (req, res) => {
     const { quantity } = z.object({ quantity: amount }).strict().parse(req.body);
-    const row = db.prepare('UPDATE vehicles SET quantity = quantity + ? WHERE id = ? AND quantity <= 1000000 - ? RETURNING *').get(quantity, req.params.id, quantity);
-    if (!row) { const failure = stockFailure(req.params.id, 'Stock limit exceeded.'); res.status(failure.status).json({ error: failure.error }); return; }
+    const row = db.prepare('UPDATE vehicles SET quantity = quantity + ? WHERE id = ? AND quantity <= 1000000 - ? RETURNING *').get(quantity, String(req.params.id), quantity);
+    if (!row) { const failure = stockFailure(String(req.params.id), 'Stock limit exceeded.'); res.status(failure.status).json({ error: failure.error }); return; }
     res.json({ vehicle: publicVehicle(row) });
   });
   return router;

@@ -1,0 +1,68 @@
+import { test, expect, type Page } from '@playwright/test';
+const login = async (page: Page) => {
+  await page.goto('/');
+  await page.getByLabel('Email address').fill('admin@example.com');
+  await page.getByLabel('Password', { exact: true }).fill('TestingPassword42!');
+  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Your next chapter starts here.' })).toBeVisible();
+};
+test('admin adds, edits, restocks, purchases, filters and deletes inventory', async ({ page }) => {
+  await login(page);
+  await page.getByRole('button', { name: 'Add vehicle', exact: true }).click();
+  await page.getByLabel('Make', { exact: true }).fill('Porsche');
+  await page.getByLabel('Model', { exact: true }).fill('911 Test');
+  await page.getByLabel('Category', { exact: true }).selectOption('Coupe');
+  await page.getByLabel('Price (USD)').fill('114400');
+  await page.getByLabel('Quantity', { exact: true }).fill('1');
+  await page.getByRole('button', { name: 'Save vehicle' }).click();
+  const card = page.getByRole('article').filter({ hasText: '911 Test' });
+  await expect(card).toBeVisible();
+  await card.getByRole('button', { name: 'Edit vehicle' }).click();
+  await page.getByLabel('Model', { exact: true }).fill('911 Carrera Test');
+  await page.getByRole('button', { name: 'Save vehicle' }).click();
+  const edited = page.getByRole('article').filter({ hasText: '911 Carrera Test' });
+  await edited.getByRole('button', { name: 'Purchase vehicle' }).click();
+  await page.getByRole('button', { name: 'Confirm purchase' }).click();
+  await expect(edited.getByRole('button', { name: 'Out of stock' })).toBeDisabled();
+  await edited.getByRole('button', { name: 'Restock vehicle' }).click();
+  await page.getByLabel('Units to add').fill('3');
+  await page.getByRole('button', { name: 'Confirm restock' }).click();
+  await expect(edited.getByText('3 in stock')).toBeVisible();
+  await page.getByRole('searchbox').fill('nonexistent');
+  await expect(page.getByText('No vehicles found')).toBeVisible();
+  await page.getByRole('button', { name: 'Clear filters' }).click();
+  await expect(edited).toBeVisible();
+  await page.reload();
+  await expect(edited).toBeVisible();
+  await edited.getByRole('button', { name: 'Delete vehicle' }).click();
+  await page.getByRole('button', { name: 'Confirm delete' }).click();
+  await expect(edited).toHaveCount(0);
+});
+test('customer registers, sees no admin actions and can sign out', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Create account', exact: true }).click();
+  await page.getByLabel('Full name').fill('Taylor Reed');
+  await page.getByLabel('Email address').fill('taylor@example.com');
+  await page.getByLabel('Password', { exact: true }).fill('CustomerPassword42!');
+  await page.getByRole('button', { name: 'Create account', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Your next chapter starts here.' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Add vehicle', exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Sign out' }).click();
+  await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeVisible();
+});
+test('login errors are announced without navigating away', async ({ page }) => {
+  await page.goto('/');
+  await page.getByLabel('Email address').fill('wrong@example.com');
+  await page.getByLabel('Password', { exact: true }).fill('WrongPassword42!');
+  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('Invalid email or password.');
+});
+test('mobile dashboard fits the viewport and dialogs support keyboard dismissal', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await login(page);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.getByRole('button', { name: 'Add vehicle', exact: true }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+});

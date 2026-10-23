@@ -1,0 +1,31 @@
+
+> forecourt-inventory@1.0.0 test:coverage
+> vitest run --coverage
+
+
+ RUN  v4.1.12 /Users/venisa/Documents/Codex/2026-10-23/tdd-kata-car-dealership-inventory-system/outputs/forecourt
+      Coverage enabled with v8
+
+
+ Test Files  2 passed (2)
+      Tests  57 passed (57)
+   Start at  21:30:04
+   Duration  2.91s (transform 342ms, setup 0ms, import 2.69s, tests 1.59s, environment 0ms)
+
+ % Coverage report from v8
+-------------|---------|----------|---------|---------|-------------------
+File         | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------|---------|----------|---------|---------|-------------------
+All files    |   95.32 |     91.3 |   96.66 |   97.45 |                   
+ app.ts      |   79.31 |       75 |      80 |   84.21 | 25-27             
+ auth.ts     |      98 |    94.44 |     100 |     100 | 23                
+ database.ts |   83.33 |       50 |     100 |     100 | 6                 
+ vehicles.ts |     100 |    97.29 |     100 |     100 | 71                
+-------------|---------|----------|---------|---------|-------------------
+
+=============================== Coverage summary ===============================
+Statements   : 95.32% ( 163/171 )
+Branches     : 91.3% ( 63/69 )
+Functions    : 96.66% ( 29/30 )
+Lines        : 97.45% ( 115/118 )
+================================================================================
