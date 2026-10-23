@@ -1,0 +1,14 @@
+
+> forecourt-inventory@1.0.0 test
+> vitest run
+
+
+ RUN  v3.2.7 /Users/venisa/Documents/Codex/2026-10-23/tdd-kata-car-dealership-inventory-system/outputs/forecourt
+
+ ✓ tests/auth.test.ts (17 tests) 1158ms
+
+ Test Files  1 passed (1)
+      Tests  17 passed (17)
+   Start at  21:24:04
+   Duration  2.09s (transform 83ms, setup 0ms, collect 477ms, tests 1.16s, environment 0ms, prepare 124ms)
+
