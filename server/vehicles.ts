@@ -63,17 +63,21 @@ export function vehicleRouter(db: Database, authenticate: RequestHandler, admin:
     if (!db.prepare('DELETE FROM vehicles WHERE id = ?').run(req.params.id).changes) { res.status(404).json({ error: 'Vehicle not found.' }); return; }
     res.status(204).end();
   });
+  const stockFailure = (id: string, conflict: string) => {
+    const exists = Boolean(find(id));
+    return { status: exists ? 409 : 404, error: exists ? conflict : 'Vehicle not found.' };
+  };
   router.post('/:id/purchase', (req, res) => {
     const { quantity } = z.object({ quantity: amount.default(1) }).strict().parse(req.body ?? {});
     // The condition and decrement are one SQLite statement: stock can never go negative.
     const row = db.prepare('UPDATE vehicles SET quantity = quantity - ? WHERE id = ? AND quantity >= ? RETURNING *').get(quantity, req.params.id, quantity);
-    if (!row) { res.status(find(req.params.id) ? 409 : 404).json({ error: find(req.params.id) ? 'Not enough stock for this purchase.' : 'Vehicle not found.' }); return; }
+    if (!row) { const failure = stockFailure(req.params.id, 'Not enough stock for this purchase.'); res.status(failure.status).json({ error: failure.error }); return; }
     res.json({ vehicle: publicVehicle(row) });
   });
   router.post('/:id/restock', admin, (req, res) => {
     const { quantity } = z.object({ quantity: amount }).strict().parse(req.body);
     const row = db.prepare('UPDATE vehicles SET quantity = quantity + ? WHERE id = ? AND quantity <= 1000000 - ? RETURNING *').get(quantity, req.params.id, quantity);
-    if (!row) { res.status(find(req.params.id) ? 409 : 404).json({ error: find(req.params.id) ? 'Stock limit exceeded.' : 'Vehicle not found.' }); return; }
+    if (!row) { const failure = stockFailure(req.params.id, 'Stock limit exceeded.'); res.status(failure.status).json({ error: failure.error }); return; }
     res.json({ vehicle: publicVehicle(row) });
   });
   return router;
